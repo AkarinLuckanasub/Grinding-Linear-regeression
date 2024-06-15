@@ -1,0 +1,88 @@
+---
+title: "Linear Regression"
+author: "Natnalin Kerdkaew"
+date: "2024-06-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+### **Data Preparation**
+
+```{r}
+# Setting up the data
+set.seed(123) # For reproducibility
+time_before <- c(1:100)
+work_before <- round(10 + 0.05 * time_before + rnorm(100, mean=0, sd=1.5))
+time_after <- c(1:100)
+work_after <- round(12 + 0.05 * time_after + rnorm(100, mean=0, sd=1.5))
+
+```
+
+### **Fitting Linear Regression Models**
+
+```{r}
+# Fitting linear regression models
+model_before <- lm(work_before ~ time_before)
+model_after <- lm(work_after ~ time_after)
+
+```
+
+### **Making Predictions**
+
+```{r}
+# Making predictions
+time_future <- c(1:100) # Extending the time range for prediction
+pred_before <- predict(model_before, newdata=data.frame(time_before=time_future))
+pred_after <- predict(model_after, newdata=data.frame(time_after=time_future))
+
+```
+
+### **Plotting the Data and Predictions**
+
+```{r}
+library(ggplot2)
+
+# Creating data frames for plotting
+data_before <- data.frame(Time = time_before, Work = work_before, Type = "Before (Observed)")
+data_after <- data.frame(Time = time_after, Work = work_after, Type = "After (Observed)")
+pred_data_before <- data.frame(Time = time_future, Work = pred_before, Type = "Before (Predicted)")
+pred_data_after <- data.frame(Time = time_future, Work = pred_after, Type = "After (Predicted)")
+
+# Combining data frames
+plot_data <- rbind(data_before, data_after, pred_data_before, pred_data_after)
+
+# Plotting with ggplot2
+ggplot(plot_data, aes(x = Time, y = Work, color = Type, shape = Type, linetype = Type)) +
+  geom_point(data = subset(plot_data, Type %in% c("Before (Observed)", "After (Observed)")), size = 1.5) +
+  geom_line(data = subset(plot_data, Type %in% c("Before (Predicted)", "After (Predicted)")), size = 1) +
+  scale_color_manual(values = c("Before (Observed)" = "gold", "After (Observed)" = "purple", 
+                                "Before (Predicted)" = "gold", "After (Predicted)" = "purple")) +
+  scale_shape_manual(values = c("Before (Observed)" = 16, "After (Observed)" = 16, 
+                                "Before (Predicted)" = NA, "After (Predicted)" = NA)) +
+  scale_linetype_manual(values = c("Before (Observed)" = "blank", "After (Observed)" = "blank", 
+                                   "Before (Predicted)" = "solid", "After (Predicted)" = "solid")) +
+  labs(title = "Workpieces Processed Before and After Modification with Predictions", 
+       x = "Time (hours)", y = "Number of Workpieces") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+```
+
+### **Model Summaries**
+
+```{r}
+# Model summaries
+summary(model_before)
+summary(model_after)
+
+```
+
+
+
+
+
+
